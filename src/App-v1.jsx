@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faMinus, faPlus, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import StarRating from "./StarRating";
 
 const tempMovieData = [
   {
@@ -73,7 +74,11 @@ export default function App() {
   console.log("During render"); */
 
   function handleSelectMovie(id) {
-    setSelectedId(id);
+    setSelectedId((selectedId) => (id === selectedId ? null : id));
+  }
+
+  function handleCloseMovie() {
+    setSelectedId(null);
   }
 
   useEffect(
@@ -125,7 +130,7 @@ export default function App() {
 
         <Box>
           {selectedId ? (
-            <MovieDetails selectedId={selectedId} />
+            <MovieDetails selectedId={selectedId} onCloseMovie={handleCloseMovie} />
           ) : (
             <>
               <WatchedSummary watched={watched} />
@@ -224,8 +229,67 @@ function Movie({ movie, onSelectMovie }) {
   );
 }
 
-function MovieDetails({ selectedId }) {
-  return <div className="detail">{selectedId}</div>;
+function MovieDetails({ selectedId, onCloseMovie }) {
+  const [movie, setMovie] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { Title: title, Year: year, Poster: poster, Runtime: runtime, imdbRating, Plot: plot, Released: released, Actors: actors, Director: director, Genre: genre } = movie;
+
+  useEffect(
+    function () {
+      async function getMovieDetails() {
+        setIsLoading(true);
+        const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`);
+        const data = await res.json();
+        setMovie(data);
+        setIsLoading(false);
+      }
+      getMovieDetails();
+    },
+    [selectedId]
+  );
+
+  return (
+    <div className="details">
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <>
+          <header>
+            <button className="btn-back" onClick={onCloseMovie}>
+              <FontAwesomeIcon icon={faArrowLeft} />
+            </button>
+
+            <img src={poster} alt={`Poster of ${movie}`} />
+
+            <div className="details-overview">
+              <h2>{title}</h2>
+              <p>
+                {released} &bull; {runtime}
+              </p>
+              <p>{genre}</p>
+              <p>
+                <span>⭐️ IMDb Rating:</span>
+                {imdbRating}
+              </p>
+            </div>
+          </header>
+
+          <section>
+            <div className="rating">
+              <StarRating maxRating={10} size={24} />
+            </div>
+
+            <p>
+              <em>{plot}</em>
+            </p>
+            <p>Starring {actors}</p>
+            <p>Directed by {director}</p>
+          </section>
+        </>
+      )}
+    </div>
+  );
 }
 
 function WatchedSummary({ watched }) {
