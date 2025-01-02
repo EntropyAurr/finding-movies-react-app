@@ -1,11 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@400..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Oxanium:wght@200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap");
 
 :root {
-  --color-primary: #2b9348;
-  --color-primary-light: #fdf0d5;
+  --color-primary: #1d7d39;
+  --color-primary-light: #2b9348;
   --color-text: #dee2e6;
   --color-text-dark: #adb5bd;
-  --color-background-100: #343a40;
+  --color-background-100: #494c50;
   --color-background-500: #2b3035;
   --color-background-900: #212529;
   --color-red: #fa5252;
@@ -24,13 +24,10 @@ html {
 
 body {
   font-family: "Poppins";
-
   color: var(--color-text);
   background-color: var(--color-background-900);
   padding: 2.4rem;
 }
-
-/* ******* */
 
 .nav-bar {
   display: grid;
@@ -51,11 +48,12 @@ body {
 }
 
 .box {
-  width: 42rem;
-  max-width: 42rem;
+  width: 45rem;
+  max-width: 45rem;
   background-color: var(--color-background-500);
   border-radius: 0.9rem;
   position: relative;
+  overflow-y: scroll;
 }
 
 .loader {
@@ -71,8 +69,6 @@ body {
   font-size: 2rem;
   padding: 4.8rem;
 }
-
-/* ******* */
 
 .logo {
   display: flex;
@@ -99,9 +95,7 @@ body {
   width: 40rem;
   transition: all 0.3s;
   color: black;
-
-  /* background-color: var(--color-background-900); */
-  background-color: var(--color-primary-light);
+  background-color: #fdfcdc;
 }
 
 .search:focus {
@@ -136,7 +130,6 @@ body {
 .list {
   list-style: none;
   padding: 0.8rem 0;
-  /* overflow: scroll; */
 }
 
 .list-watched {
@@ -146,12 +139,11 @@ body {
 .list li {
   position: relative;
   display: grid;
-  grid-template-columns: 4rem 1fr;
+  grid-template-columns: 7rem 1fr;
   grid-template-rows: auto auto;
   column-gap: 2.4rem;
   font-size: 1.6rem;
   align-items: center;
-
   padding: 1.6rem 3.2rem;
   border-bottom: 1px solid var(--color-background-100);
 }
@@ -168,10 +160,13 @@ body {
 .list img {
   width: 100%;
   grid-row: 1 / -1;
+  border-radius: 4px;
 }
 
 .list h3 {
+  font-family: "Ubuntu";
   font-size: 1.8rem;
+  line-height: 1.5;
 }
 
 .list div {
@@ -206,8 +201,6 @@ body {
   background-color: var(--color-red-dark);
 }
 
-/* ******* */
-
 .summary {
   padding: 2.2rem 3.2rem 1.8rem 3.2rem;
   border-radius: 0.9rem;
@@ -235,8 +228,6 @@ body {
   align-items: center;
   gap: 0.8rem;
 }
-
-/* ******* */
 
 .details {
   line-height: 1.4;
@@ -268,6 +259,7 @@ body {
 }
 
 .details-overview h2 {
+  font-family: "Ubuntu";
   font-size: 2.4rem;
   margin-bottom: 0.4rem;
   line-height: 1.1;
@@ -280,12 +272,13 @@ body {
 }
 
 .rating {
-  background-color: var(--color-background-100);
+  background-color: white;
   border-radius: 0.9rem;
   padding: 2rem 2.4rem;
   margin-bottom: 0.8rem;
   font-weight: 600;
   display: flex;
+  justify-content: center;
   flex-direction: column;
   gap: 2.4rem;
 }
@@ -324,7 +317,6 @@ body {
   aspect-ratio: 1;
   border-radius: 50%;
   border: none;
-  /* background-color: var(--color-text); */
   background-color: #fff;
   color: var(--color-background-500);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);

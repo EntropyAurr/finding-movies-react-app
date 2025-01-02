@@ -128,8 +128,8 @@ function NavBar({ children }) {
 function Logo() {
   return (
     <div className="logo">
-      <span role="img">🍿</span>
-      <h1>usePopcorn</h1>
+      <span role="img">🦊</span>
+      <h1>Fox Movies</h1>
     </div>
   );
 }
@@ -181,8 +181,7 @@ function Movie({ movie, onSelectMovie }) {
       <h3>{movie.Title}</h3>
       <div>
         <p>
-          <span>🗓</span>
-          <span>{movie.Year}</span>
+          <span>🌠: {movie.Year}</span>
         </p>
       </div>
     </li>
@@ -251,7 +250,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
       document.title = `MOVIE | ${title}`;
 
       return function () {
-        document.title = "usePopCorn";
+        document.title = "Fox Movies";
       };
     },
     [title]
@@ -287,7 +286,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
             <div className="rating">
               {!isWatched ? (
                 <>
-                  <StarRating maxRating={10} size={24} onSetRating={setUserRating} />
+                  <StarRating maxRating={10} size={28} onSetRating={setUserRating} />
 
                   {userRating > 0 && (
                     <button className="btn-add" onClick={handleAdd}>
