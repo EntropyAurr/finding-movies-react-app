@@ -6,7 +6,7 @@ import { useMovies } from "./useMovies";
 import { useLocalStorageState } from "./useLocalStorageState";
 import { useKey } from "./useKey";
 
-const average = (arr) => arr.reduce((acc, cur, arr) => acc + cur / arr.length, 0);
+const average = (arr) => arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 const KEY = "b852c9ac";
 
 export default function App() {
