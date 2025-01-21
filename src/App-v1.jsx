@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinus, faPlus, faArrowLeft, faXmark } from "@fortawesome/free-solid-svg-icons";
@@ -77,6 +78,7 @@ export default function App() {
   return (
     <>
       <NavBar>
+        <Logo />
         <Search query={query} setQuery={setQuery} />
         <NumResults movies={movies} />
       </NavBar>
@@ -117,12 +119,7 @@ function ErrorMessage({ message }) {
 }
 
 function NavBar({ children }) {
-  return (
-    <nav className="nav-bar">
-      <Logo />
-      {children}
-    </nav>
-  );
+  return <nav className="nav-bar">{children}</nav>;
 }
 
 function Logo() {
@@ -143,7 +140,7 @@ function NumResults({ movies }) {
 }
 
 function Search({ query, setQuery }) {
-  return <input className="search" type="text" placeholder="Search movies..." value={query} onChange={(e) => setQuery(e.target.value)} />;
+  return <input className="search" type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search movies..." />;
 }
 
 function Main({ children }) {
