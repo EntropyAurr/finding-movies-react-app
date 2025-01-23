@@ -65,7 +65,6 @@ export default function App() {
       }
 
       handleCloseMovie();
-
       fetchMovies();
 
       return function () {
