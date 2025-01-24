@@ -89,6 +89,14 @@ body {
 .finding {
   background-color: #fdfcdc;
   border-radius: 0.7rem;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+}
+
+.finding .icon {
+  font-size: 2.5rem;
+  color: #505050;
 }
 
 .search {
