@@ -5,6 +5,7 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 
 const KEY = "b852c9ac";
+const average = (arr) => arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 export default function App() {
   const [query, setQuery] = useState("");
@@ -12,6 +13,7 @@ export default function App() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
+  const [watched, setWatched] = useState([]);
 
   function handleSelectMovie(id) {
     setSelectedId(id === selectedId ? null : id);
@@ -70,7 +72,16 @@ export default function App() {
       <Main>
         <Box>{!isLoading && !error && <MovieList movies={movies} onSelectMovie={handleSelectMovie} />}</Box>
 
-        <Box></Box>
+        <Box>
+          {selectedId ? (
+            <MovieDetails />
+          ) : (
+            <>
+              <WatchedSummary watched={watched} />
+              <WatchedMoviesList />
+            </>
+          )}
+        </Box>
       </Main>
     </>
   );
@@ -137,3 +148,48 @@ function Movie({ movie, onSelectMovie }) {
     </li>
   );
 }
+
+function MovieDetails() {
+  const [movie, setMovie] = useState({});
+
+  function handleAdd() {
+    const newWatchedMovie = {
+      imdbID: selectedId,
+      title,
+      year,
+      poster,
+      imdbRating: Number(imdbRating),
+      runtime: Number(runtime),
+    };
+  }
+
+  return <div className="details"></div>;
+}
+
+function WatchedSummary({ watched }) {
+  return (
+    <div className="summary">
+      <h2>Movies you watched</h2>
+      <div>
+        <p>
+          <span>#️⃣</span>
+          <span>{watched.length} movies</span>
+        </p>
+        <p>
+          <span>⭐️</span>
+          <span></span>
+        </p>
+        <p>
+          <span>💫</span>
+          <span></span>
+        </p>
+        <p>
+          <span>⏳</span>
+          <span>min</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function WatchedMoviesList() {}
