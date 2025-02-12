@@ -1,8 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faL, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
+import { faMinus, faPlus, faArrowLeft, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 const KEY = "b852c9ac";
 const average = (arr) => arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -12,11 +13,10 @@ export default function App() {
   const [movies, setMovies] = useState([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedId, setSelectedId] = useState(null);
-  const [watched, setWatched] = useState([]);
+  const [selectedId, setSelectedId] = useState("");
 
   function handleSelectMovie(id) {
-    setSelectedId(id === selectedId ? null : id);
+    setSelectedId((selectedId) => (id === selectedId ? null : id));
   }
 
   useEffect(
@@ -31,13 +31,14 @@ export default function App() {
           const res = await fetch(`https://www.omdbapi.com/?apikey=${KEY}&s=${query}`, { signal: controller.signal });
           const data = await res.json();
 
-          if (!res.ok) throw new Error("Something went wrong while fetching movies");
-          if (data.Response === "false") throw new Error("Movie not found");
+          if (!res.ok) throw new Error("Something went wrong with fetching movies");
+          if (data.Response === "False") throw new Error("Movie not found");
 
           setMovies(data.Search);
+
           setError("");
         } catch (err) {
-          if (error.name === "AbortError") {
+          if (error.name !== "AbortError") {
             setError(err.message);
             console.log(err.message);
           }
@@ -66,18 +67,22 @@ export default function App() {
       <NavBar>
         <Logo />
         <Search query={query} setQuery={setQuery} />
-        <NumResults movies={movies} />
+        <NumberResult movies={movies} />
       </NavBar>
 
       <Main>
-        <Box>{!isLoading && !error && <MovieList movies={movies} onSelectMovie={handleSelectMovie} />}</Box>
+        <Box>
+          {isLoading && <Loader />}
+          {!isLoading && !error && <MovieList movies={movies} onSelectMovie={handleSelectMovie} />}
+          {error && <ErrorMessage message={error} />}
+        </Box>
 
         <Box>
           {selectedId ? (
-            <MovieDetails />
+            <MovieDetails selectedId={selectedId} />
           ) : (
             <>
-              <WatchedSummary watched={watched} />
+              <WatchedSummary />
               <WatchedMoviesList />
             </>
           )}
@@ -103,13 +108,26 @@ function Logo() {
 function Search({ query, setQuery }) {
   return (
     <div className="finding">
-      <FontAwesomeIcon className="icon" icon={faMagnifyingGlass}></FontAwesomeIcon>
-      <input className="search" type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Movies name..." />
+      <FontAwesomeIcon className="icon" icon={faMagnifyingGlass} />
+      <input type="text" className="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search movies..." />;
     </div>
   );
 }
 
-function NumResults({ movies }) {
+function Loader() {
+  return <p className="loader">Loading🍋...</p>;
+}
+
+function ErrorMessage({ message }) {
+  return (
+    <p className="error">
+      <span>🦖 </span>
+      {message}
+    </p>
+  );
+}
+
+function NumberResult({ movies }) {
   return (
     <p className="num-results">
       Found <strong>{movies.length}</strong> results
@@ -122,14 +140,24 @@ function Main({ children }) {
 }
 
 function Box({ children }) {
-  return <div className="box">{children}</div>;
+  const [isOpen, setIsOpen] = useState(true);
+
+  return (
+    <div className="box">
+      <button className="btn-toggle" onClick={() => setIsOpen((open) => !open)}>
+        {isOpen ? <FontAwesomeIcon icon={faPlus} /> : <FontAwesomeIcon icon={faMinus} />}
+      </button>
+
+      {isOpen && children}
+    </div>
+  );
 }
 
 function MovieList({ movies, onSelectMovie }) {
   return (
     <ul className="list">
       {movies?.map((movie) => (
-        <Movie key={movie.imdbID} movie={movie} onSelectMovie={onSelectMovie} />
+        <Movie movie={movie} key={movie.imdbID} onSelectMovie={onSelectMovie} />
       ))}
     </ul>
   );
@@ -138,7 +166,7 @@ function MovieList({ movies, onSelectMovie }) {
 function Movie({ movie, onSelectMovie }) {
   return (
     <li onClick={() => onSelectMovie(movie.imdbID)}>
-      <img src={movie.Poster} alt={movie.Title} />
+      <img src={movie.Poster} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>
         <p>
@@ -149,47 +177,70 @@ function Movie({ movie, onSelectMovie }) {
   );
 }
 
-function MovieDetails() {
+function MovieDetails({ selectedId }) {
+  const [isLoading, setIsLoading] = useState(false);
   const [movie, setMovie] = useState({});
 
-  function handleAdd() {
-    const newWatchedMovie = {
-      imdbID: selectedId,
-      title,
-      year,
-      poster,
-      imdbRating: Number(imdbRating),
-      runtime: Number(runtime),
-    };
-  }
+  const { Title: title, Year: year, Poster: poster, Released: released, Runtime: runtime, Genre: genre, Director: director, Plot: plot, Actors: actors, imdbRating } = movie; // asign new names for properties
 
-  return <div className="details"></div>;
-}
+  useEffect(
+    function () {
+      async function getMovieDetails() {
+        setIsLoading(true);
 
-function WatchedSummary({ watched }) {
+        const res = await fetch(`https://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`);
+        const data = await res.json();
+
+        setMovie(data);
+        setIsLoading(false);
+      }
+
+      getMovieDetails();
+    },
+    [selectedId]
+  );
+
   return (
-    <div className="summary">
-      <h2>Movies you watched</h2>
-      <div>
-        <p>
-          <span>#️⃣</span>
-          <span>{watched.length} movies</span>
-        </p>
-        <p>
-          <span>⭐️</span>
-          <span></span>
-        </p>
-        <p>
-          <span>💫</span>
-          <span></span>
-        </p>
-        <p>
-          <span>⏳</span>
-          <span>min</span>
-        </p>
-      </div>
+    <div className="details">
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <>
+          <header>
+            <button className="btn-back">
+              <FontAwesomeIcon icon={faArrowLeft} />
+            </button>
+
+            <img src={poster} alt={`Poster of ${title}`} />
+
+            <div className="details-overview">
+              <h2>{title}</h2>
+              <p>
+                {released} &bull; {runtime}
+              </p>
+              <p>{genre}</p>
+              <p>
+                <span>⭐️ IMDb Rating:</span>
+                {imdbRating}
+              </p>
+            </div>
+          </header>
+
+          <section>
+            <div className="rating"></div>
+
+            <p>
+              <em>{plot}</em>
+            </p>
+            <p>Starring: {actors}</p>
+            <p>Directed by: {director}</p>
+          </section>
+        </>
+      )}
     </div>
   );
 }
+
+function WatchedSummary() {}
 
 function WatchedMoviesList() {}
