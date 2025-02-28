@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faL, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { faMinus, faPlus, faArrowLeft, faXmark } from "@fortawesome/free-solid-svg-icons";
+import StarRating from "./StarRating-v1";
 
 const KEY = "b852c9ac";
 const average = (arr) => arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -14,9 +15,14 @@ export default function App() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedId, setSelectedId] = useState("");
+  const [watched, setWatched] = useState([]);
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
+  }
+
+  function handleAddWatched(movie) {
+    setWatched((watched) => [...watched, movie]);
   }
 
   useEffect(
@@ -79,7 +85,7 @@ export default function App() {
 
         <Box>
           {selectedId ? (
-            <MovieDetails selectedId={selectedId} />
+            <MovieDetails selectedId={selectedId} watched={watched} onAddWatched={handleAddWatched} />
           ) : (
             <>
               <WatchedSummary />
@@ -177,9 +183,11 @@ function Movie({ movie, onSelectMovie }) {
   );
 }
 
-function MovieDetails({ selectedId }) {
+function MovieDetails({ selectedId, watched }) {
   const [isLoading, setIsLoading] = useState(false);
   const [movie, setMovie] = useState({});
+
+  const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
 
   const { Title: title, Year: year, Poster: poster, Released: released, Runtime: runtime, Genre: genre, Director: director, Plot: plot, Actors: actors, imdbRating } = movie; // asign new names for properties
 
@@ -227,7 +235,15 @@ function MovieDetails({ selectedId }) {
           </header>
 
           <section>
-            <div className="rating"></div>
+            <div className="rating">
+              {!isWatched ? (
+                <>
+                  <StarRating maxRating={10} size={28} />
+                </>
+              ) : (
+                <p>You rated this movie: </p>
+              )}
+            </div>
 
             <p>
               <em>{plot}</em>
