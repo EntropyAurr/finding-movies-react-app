@@ -31,7 +31,7 @@ export default function StarRating({ maxRating = 5, color = "#ffb703", size = 48
   const textStyle = {
     lineHeight: "1",
     margin: 0,
-    color,
+    color: "#2a9d8f",
     fontSize: `${size / 1.5}px`,
   };
 
@@ -42,6 +42,8 @@ export default function StarRating({ maxRating = 5, color = "#ffb703", size = 48
           <Star key={i} full={tempRating ? tempRating >= i + 1 : rating >= i + 1} onRate={() => handleRating(i + 1)} onHoverIn={() => setTempRating(i + 1)} onHoverOut={() => setTempRating(0)} color={color} size={size} />
         ))}
       </div>
+
+      <p style={textStyle}>{messages.length === maxRating ? messages[tempRating ? tempRating - 1 : rating - 1] : tempRating || rating || ""}</p>
     </div>
   );
 }
