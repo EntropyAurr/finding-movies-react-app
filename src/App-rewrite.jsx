@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faL, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { faMinus, faPlus, faArrowLeft, faXmark } from "@fortawesome/free-solid-svg-icons";
 import StarRating from "./StarRating-v1";
@@ -12,13 +12,17 @@ const average = (arr) => arr.reduce((acc, cur, i, arr) => acc + cur / arr.length
 export default function App() {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
-  const [error, setError] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedId, setSelectedId] = useState("");
+  const [error, setError] = useState("");
   const [watched, setWatched] = useState([]);
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
+  }
+
+  function handleCloseMovie() {
+    setSelectedId(null);
   }
 
   function handleAddWatched(movie) {
@@ -27,10 +31,6 @@ export default function App() {
 
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
-  }
-
-  function handleCloseMovie() {
-    selectedId(null);
   }
 
   useEffect(
@@ -199,10 +199,10 @@ function MovieDetails({ selectedId, watched, onAddWatched, onCloseMovie }) {
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
   const watchedUserRating = watched.find((movie) => movie.imdbID === selectedId)?.userRating;
 
-  const { Title: title, Year: year, Poster: poster, Released: released, Runtime: runtime, Genre: genre, Director: director, Plot: plot, Actors: actors, imdbRating } = movie; // asign new names for properties
+  const { Title: title, Year: year, Poster: poster, Released: released, Runtime: runtime, Genre: genre, Director: director, Plot: plot, Actors: actors, imdbRating } = movie; // assign new names for properties
 
   function handleAdd() {
-    const newWatchMovie = {
+    const newWatchedMovie = {
       imdbID: selectedId,
       title,
       year,
@@ -212,7 +212,7 @@ function MovieDetails({ selectedId, watched, onAddWatched, onCloseMovie }) {
       userRating,
     };
 
-    onAddWatched(newWatchMovie);
+    onAddWatched(newWatchedMovie);
     onCloseMovie();
   }
 
@@ -338,4 +338,41 @@ function WatchedSummary({ watched }) {
   );
 }
 
-function WatchedMoviesList() {}
+function WatchedMoviesList({ watched, onDeleteWatched }) {
+  return (
+    <ul className="list">
+      {watched.map((movie) => (
+        <WatchedMovie key={movie.imdbID} movie={movie} onDeleteWatched={onDeleteWatched} />
+      ))}
+    </ul>
+  );
+}
+
+function WatchedMovie({ movie, onDeleteWatched }) {
+  return (
+    <li>
+      <img src={movie.poster} alt={`${movie.title} poster`} />
+      <h3>{movie.title}</h3>
+      <div>
+        <p>
+          <span>⭐️</span>
+          <span>{movie.imdbRating}</span>
+        </p>
+
+        <p>
+          <span>💫</span>
+          <span>{movie.userRating}</span>
+        </p>
+
+        <p>
+          <span>⏳</span>
+          <span>{movie.runtime} min</span>
+        </p>
+
+        <button className="btn-delete" onClick={() => onDeleteWatched(movie.imdbID)}>
+          <FontAwesomeIcon icon={faXmark} />
+        </button>
+      </div>
+    </li>
+  );
+}

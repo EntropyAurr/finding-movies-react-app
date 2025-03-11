@@ -16,10 +16,9 @@ StarRating.propTypes = {
   defaultRating: PropTypes.number,
   color: PropTypes.string,
   size: PropTypes.number,
-  messages: PropTypes.array,
 };
 
-export default function StarRating({ maxRating = 5, color = "#ffb703", size = 48, messages = [], defaultRating = 0, onSetRating = () => {} }) {
+export default function StarRating({ maxRating = 5, color = "#ffb703", size = 48, defaultRating = 0, onSetRating = () => {} }) {
   const [rating, setRating] = useState(defaultRating);
   const [tempRating, setTempRating] = useState(0);
 
@@ -43,7 +42,7 @@ export default function StarRating({ maxRating = 5, color = "#ffb703", size = 48
         ))}
       </div>
 
-      <p style={textStyle}>{messages.length === maxRating ? messages[tempRating ? tempRating - 1 : rating - 1] : tempRating || rating || ""}</p>
+      <p style={textStyle}>{tempRating || rating || ""}</p>
     </div>
   );
 }
