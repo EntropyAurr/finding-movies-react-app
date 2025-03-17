@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+
 import { useState, useEffect } from "react";
 
 const KEY = "b852c9ac";
@@ -10,8 +11,6 @@ export function useMovies(query) {
 
   useEffect(
     function () {
-      //   callback?.();
-
       const controller = new AbortController();
 
       async function fetchMovies() {
@@ -26,6 +25,7 @@ export function useMovies(query) {
           if (data.Response === "False") throw new Error("Movie not found");
 
           setMovies(data.Search);
+
           setError("");
         } catch (err) {
           if (error.name !== "AbortError") {

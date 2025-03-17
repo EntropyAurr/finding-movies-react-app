@@ -1,21 +1,20 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { faMinus, faPlus, faArrowLeft, faXmark } from "@fortawesome/free-solid-svg-icons";
 import StarRating from "./StarRating-v1";
+import { useMovies } from "./useMovies";
+import { useLocalStorageState } from "./useLocalStorageState";
+import { useKey } from "./useKey";
 
 const KEY = "b852c9ac";
 const average = (arr) => arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 export default function App() {
   const [query, setQuery] = useState("");
-  const [movies, setMovies] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [watched, setWatched] = useState([]);
+  const { movies, isLoading, error } = useMovies(query);
+  const [watched, setWatched] = useLocalStorageState([], "watched");
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
@@ -32,49 +31,6 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
-
-  useEffect(
-    function () {
-      const controller = new AbortController();
-
-      async function fetchMovies() {
-        try {
-          setIsLoading(true);
-          setError("");
-
-          const res = await fetch(`https://www.omdbapi.com/?apikey=${KEY}&s=${query}`, { signal: controller.signal });
-          const data = await res.json();
-
-          if (!res.ok) throw new Error("Something went wrong with fetching movies");
-          if (data.Response === "False") throw new Error("Movie not found");
-
-          setMovies(data.Search);
-
-          setError("");
-        } catch (err) {
-          if (error.name !== "AbortError") {
-            setError(err.message);
-            console.log(err.message);
-          }
-        } finally {
-          setIsLoading(false);
-        }
-      }
-
-      if (query.length < 3) {
-        setMovies([]);
-        setError("");
-        return;
-      }
-
-      fetchMovies();
-
-      return function () {
-        controller.abort();
-      };
-    },
-    [query]
-  );
 
   return (
     <>
@@ -120,10 +76,18 @@ function Logo() {
 }
 
 function Search({ query, setQuery }) {
+  const inputEl = useRef(null);
+
+  useKey("Enter", function () {
+    if (document.activeElement === inputEl.current) return;
+    inputEl.current.focus();
+    setQuery("");
+  });
+
   return (
     <div className="finding">
       <FontAwesomeIcon className="icon" icon={faMagnifyingGlass} />
-      <input type="text" className="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search movies..." />;
+      <input type="text" className="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search movies..." ref={inputEl} />;
     </div>
   );
 }
@@ -196,6 +160,17 @@ function MovieDetails({ selectedId, watched, onAddWatched, onCloseMovie }) {
   const [movie, setMovie] = useState({});
   const [userRating, setUserRating] = useState("");
 
+  const countRef = useRef(0);
+
+  useEffect(
+    function () {
+      if (userRating) {
+        countRef.current++;
+      }
+    },
+    [userRating]
+  );
+
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
   const watchedUserRating = watched.find((movie) => movie.imdbID === selectedId)?.userRating;
 
@@ -216,22 +191,7 @@ function MovieDetails({ selectedId, watched, onAddWatched, onCloseMovie }) {
     onCloseMovie();
   }
 
-  useEffect(
-    function () {
-      function callback(e) {
-        if (e.code === "Escape") {
-          onCloseMovie();
-        }
-      }
-
-      document.addEventListener("keydown", callback);
-
-      return function () {
-        document.addEventListener("keydown", callback);
-      };
-    },
-    [onCloseMovie]
-  );
+  useKey("Escape", onCloseMovie);
 
   useEffect(
     function () {
@@ -250,6 +210,19 @@ function MovieDetails({ selectedId, watched, onAddWatched, onCloseMovie }) {
     [selectedId]
   );
 
+  useEffect(
+    function () {
+      if (!title) return;
+
+      document.title = `MOVIE | ${title}`;
+
+      return function () {
+        document.title = "Fox Movies"; //Cleanup: Reset title when component unmounts or title changes
+      };
+    },
+    [title]
+  );
+
   return (
     <div className="details">
       {isLoading ? (
@@ -257,7 +230,7 @@ function MovieDetails({ selectedId, watched, onAddWatched, onCloseMovie }) {
       ) : (
         <>
           <header>
-            <button className="btn-back">
+            <button className="btn-back" onClick={onCloseMovie}>
               <FontAwesomeIcon icon={faArrowLeft} />
             </button>
 
